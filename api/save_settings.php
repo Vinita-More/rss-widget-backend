@@ -26,19 +26,20 @@ if (!$data) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO settings (width_mode, width, height_mode, height, autoscroll, open_links, font_style, border, border_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO settings (widget_name, width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
 
 $stmt->bind_param(
-    "sssssssss",
+    "ssssssssss",
+    $data['widgetName'],
     $data['widthMode'],
     $data['width'],
     $data['heightMode'],
     $data['height'],
     $data['autoscroll'],
-    $data['openLinks'],
     $data['fontStyle'],
-    $data['border'],
-    $data['borderColor']
+    $data['border'],    
+    $data['borderColor'],
+    $data['textAlign']
 );
 
 if ($stmt->execute()) {

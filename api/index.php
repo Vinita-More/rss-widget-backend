@@ -7,11 +7,22 @@ require_once '../constant.php';
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name); 
 
 if ($conn->connect_error) {
-    die(json_encode(["error" => $conn->connect_error]));
+    echo json_encode(["error" => "Connection failed: " . $conn->connect_error]);
+    exit;
 }
 
-$sql = "SELECT id, title, description, image, feedurl FROM dummyfeeddata";
-$result = $conn->query($sql);
+// Get folder_id from query string (default to 0 if not provided)
+$folder_id = isset($_GET['folder_id']) ? intval($_GET['folder_id']) : 0;
+
+if ($folder_id > 0) {
+    $stmt = $conn->prepare("SELECT id, title, description, image, feedurl FROM dummyfeeddata WHERE folder_id = ?");
+    $stmt->bind_param("i", $folder_id);
+} else {
+    $stmt = $conn->prepare("SELECT id, title, description, image, feedurl FROM dummyfeeddata");
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
 
 $data = [];
 
@@ -20,4 +31,5 @@ while ($row = $result->fetch_assoc()) {
 }
 
 echo json_encode($data);
+
 $conn->close();

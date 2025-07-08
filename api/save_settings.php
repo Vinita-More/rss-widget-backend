@@ -26,6 +26,31 @@ if (!$data) {
     exit;
 }
 
+
+/**/
+if (!isset($data['widgetName']) || trim($data['widgetName']) === "") {
+    http_response_code(400);
+    echo json_encode(["error" => "Widget name cannot be empty"]);
+    exit;
+}
+/**/
+
+// Check if widget_name already exists
+$widgetName = $data['widgetName'];
+
+$checkStmt = $conn->prepare("SELECT COUNT(*) FROM settings WHERE widget_name = ?");
+$checkStmt->bind_param("s", $widgetName);
+$checkStmt->execute();
+$checkStmt->bind_result($count);
+$checkStmt->fetch();
+$checkStmt->close();
+
+if ($count > 0) {
+    echo json_encode(["error" => "Widget name already exists. Please choose another name."]);
+    exit;
+}
+/**/    
+
 $stmt = $conn->prepare("INSERT INTO settings (widget_name, width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
 
 $stmt->bind_param(
@@ -41,7 +66,6 @@ $stmt->bind_param(
     $data['borderColor'],
     $data['textAlign']
 );
-
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Settings saved"]);
 } else {

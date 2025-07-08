@@ -14,29 +14,31 @@ if ($conn->connect_error) {
 $data = json_decode(file_get_contents("php://input"), true);
 
 $id = $data['id'] ?? null;
-$widgetName = $data['widgetName'] ?? null;
-$widthMode = $data['widthMode'] ?? null;
-$width = $data['width'] ?? null;
-$heightMode = $data['heightMode'] ?? null;
-$height = $data['height'] ?? null;
-$autoscroll = $data['autoscroll'] ?? null;
-$fontStyle = $data['fontStyle'] ?? null;
-$border = $data['border'] ?? null;
-$borderColor = $data['borderColor'] ?? null;
-$textAlign = $data['textAlign'] ?? null;
-
-if (!$id || !$widgetName) {
-    echo json_encode(["error" => "ID and widget name are required"]);
+if (!$id) {
+    echo json_encode(["error" => "ID is required"]);
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE settings SET widget_name = ?, width_mode = ?, width = ?, height_mode = ?, height = ?, autoscroll = ?, font_style = ?, border = ?, border_color = ?, text_alignment = ? WHERE id = ?");
-$stmt->bind_param("ssssssssssi", $widgetName, $widthMode, $width, $heightMode, $height, $autoscroll, $fontStyle, $border, $borderColor, $textAlign, $id);
+$stmt = $conn->prepare("UPDATE settings SET widget_name=?, width_mode=?, width=?, height_mode=?, height=?, autoscroll=?, font_style=?, border=?, border_color=?, text_alignment=? WHERE id=?");
+$stmt->bind_param(
+    "ssssssssssi",
+    $data['widgetName'],
+    $data['widthMode'],
+    $data['width'],
+    $data['heightMode'],
+    $data['height'],
+    $data['autoscroll'],
+    $data['fontStyle'],
+    $data['border'],
+    $data['borderColor'],
+    $data['textAlign'],
+    $id
+);
 
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Widget updated"]);
 } else {
-    echo json_encode(["error" => "Update failed", "details" => $stmt->error]);
+    echo json_encode(["error" => "Failed to update widget", "details" => $stmt->error]);
 }
 
 $stmt->close();

@@ -2,14 +2,8 @@
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 
-require_once '../constant.php';
+require_once '../db.php';
 
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name); 
-
-if ($conn->connect_error) {
-    echo json_encode(["error" => "Connection failed: " . $conn->connect_error]);
-    exit;
-}
 
 // Get folder_id from query string (default to 0 if not provided)
 $folder_id = isset($_GET['folder_id']) ? intval($_GET['folder_id']) : 0;

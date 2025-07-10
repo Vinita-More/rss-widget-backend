@@ -11,7 +11,8 @@ require_once '../db.php';
 // $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
 // if ($conn->connect_error) {
-//     echo json_encode(["success" => false, "message" => "Database connection failed"]);
+//    
+//  echo json_encode(["success" => false, "message" => "Database connection failed"]);
 //     exit;
 // }
 

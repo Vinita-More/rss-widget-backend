@@ -1,10 +1,17 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 require_once '../db.php';
+require_once 'auth_middleware.php'; 
+$user = authenticate(); 
+$email = $user->email;
 
 // require_once '../constant.php';
 
@@ -16,15 +23,17 @@ require_once '../db.php';
 $data = json_decode(file_get_contents("php://input"), true);
 
 $id = $data['id'] ?? null;
+$folder_id = $data['folder_id'];
 if (!$id) {
     echo json_encode(["error" => "ID is required"]);
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE settings SET widget_name=?, width_mode=?, width=?, height_mode=?, height=?, autoscroll=?, font_style=?, border=?, border_color=?, text_alignment=? WHERE id=?");
+$stmt = $conn->prepare("UPDATE settings SET widget_name=?, folder_id= ?,width_mode=?, width=?, height_mode=?, height=?, autoscroll=?, font_style=?, border=?, border_color=?, text_alignment=? WHERE id=? AND email=?");
 $stmt->bind_param(
-    "ssssssssssi",
+    "sisssssssssis",
     $data['widgetName'],
+    $folder_id,
     $data['widthMode'],
     $data['width'],
     $data['heightMode'],
@@ -34,7 +43,9 @@ $stmt->bind_param(
     $data['border'],
     $data['borderColor'],
     $data['textAlign'],
-    $id
+    $id,
+    $email,
+     
 );
 
 if ($stmt->execute()) {

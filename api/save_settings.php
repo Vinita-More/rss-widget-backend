@@ -1,7 +1,7 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -10,14 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../db.php';
-
-// require_once '../constant.php';
-
-// $conn = new mysqli($db_host, $db_user, $db_pass, $db_name); 
-
-// if ($conn->connect_error) {
-//     die(json_encode(["error" => $conn->connect_error]));
-// }
+require_once 'auth_middleware.php';
+$user = authenticate(); 
+$email = $user->email;
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -25,13 +20,13 @@ if (!$data) {
     echo json_encode(["error" => "No data received"]);
     exit;
 }
-
-// Validate email first
-$email = isset($data['email']) ? $data['email'] : null;
-if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(["error" => "Invalid or missing user email"]);
-    exit;
-}
+$folder_id = $data['folder_id'];
+// // Validate email first
+// $email = isset($data['email']) ? $data['email'] : null;
+// if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+//     echo json_encode(["error" => "Invalid or missing user email"]);
+//     exit;
+// }
 
 // Validate widget name
 if (!isset($data['widgetName']) || trim($data['widgetName']) === "") {
@@ -55,10 +50,11 @@ if ($count > 0) {
 }
 
 // Insert widget
-$stmt = $conn->prepare("INSERT INTO settings (widget_name, width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO settings (widget_name, folder_id ,width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param(
-    "sssssssssss",
+    "sissssssssss",
     $data['widgetName'],
+    $folder_id,
     $data['widthMode'],
     $data['width'],
     $data['heightMode'],

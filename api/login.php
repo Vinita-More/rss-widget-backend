@@ -4,6 +4,10 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
 require_once '../db.php';
+require_once '../vendor/autoload.php';
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 // require_once '../constant.php';
 
@@ -35,8 +39,22 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-if (password_verify($password, $user['password'])) {
-    echo json_encode(["success" => true, "message" => "Login successful"]);
-} else {
+if (!password_verify($password, $user['password'])) {
     echo json_encode(["success" => false, "message" => "Incorrect password"]);
+    exit;
 }
+
+$secretKey = JWT_SECRET; // Replace with secure value (put in env or constant)
+$payload = [
+    "email" => $email,
+    "exp" => time() + 3600,
+];
+
+$jwt = JWT::encode($payload, $secretKey, 'HS256');
+
+echo json_encode([
+    "success" => true,
+    "message" => "Login successful",
+    "token" => $jwt
+]);
+exit;

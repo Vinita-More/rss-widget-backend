@@ -34,6 +34,7 @@ if (!isset($data['widgetName']) || trim($data['widgetName']) === "") {
     echo json_encode(["error" => "Widget name cannot be empty"]);
     exit;
 }
+$feed_url = isset($data["feed_url"]) ? $data["feed_url"] : null;
 $widgetName = $data['widgetName'];
 
 // Check if widget name exists for this user
@@ -50,9 +51,9 @@ if ($count > 0) {
 }
 
 // Insert widget
-$stmt = $conn->prepare("INSERT INTO settings (widget_name, folder_id ,width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO settings (widget_name, folder_id ,width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment, email, feed_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param(
-    "sissssssssss",
+    "sisssssssssss",
     $data['widgetName'],
     $folder_id,
     $data['widthMode'],
@@ -64,7 +65,8 @@ $stmt->bind_param(
     $data['border'],    
     $data['borderColor'],
     $data['textAlign'],
-    $email
+    $email, 
+    $data['feed_url']
 );
 
 if ($stmt->execute()) {

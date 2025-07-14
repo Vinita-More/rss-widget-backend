@@ -29,7 +29,6 @@ $email = $user->email;
 //     exit;
 // }
 
-
 $stmt = $conn->prepare("SELECT id, widget_name FROM settings WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();

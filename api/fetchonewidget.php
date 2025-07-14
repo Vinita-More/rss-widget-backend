@@ -41,6 +41,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($widget = $result->fetch_assoc()) {
+    
     echo json_encode($widget);
 } else {
     echo json_encode(["error" => "Widget not found"]);

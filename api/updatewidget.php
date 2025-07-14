@@ -21,7 +21,7 @@ $email = $user->email;
 // }
 
 $data = json_decode(file_get_contents("php://input"), true);
-
+$feed_url = isset($data["feed_url"]) ? $data["feed_url"] : null;
 $id = $data['id'] ?? null;
 $folder_id = $data['folder_id'];
 if (!$id) {
@@ -29,9 +29,9 @@ if (!$id) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE settings SET widget_name=?, folder_id= ?,width_mode=?, width=?, height_mode=?, height=?, autoscroll=?, font_style=?, border=?, border_color=?, text_alignment=? WHERE id=? AND email=?");
+$stmt = $conn->prepare("UPDATE settings SET widget_name=?, folder_id= ?,width_mode=?, width=?, height_mode=?, height=?, autoscroll=?, font_style=?, border=?, border_color=?, text_alignment=?, feed_url = ? WHERE id=? AND email=?");
 $stmt->bind_param(
-    "sisssssssssis",
+    "sissssssssssis",
     $data['widgetName'],
     $folder_id,
     $data['widthMode'],
@@ -43,6 +43,7 @@ $stmt->bind_param(
     $data['border'],
     $data['borderColor'],
     $data['textAlign'],
+    $data['feed_url'],
     $id,
     $email,
      

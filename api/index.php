@@ -19,13 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $feedUrl = $input['feed_url'];
 
 
-    // Fetch content using cURL (supports redirects and HTTPS)
+    // Fetch content using cURL 
     $ch = curl_init($feedUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0"); // simulate browser
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0"); 
 
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 🔓 disables certificate check
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     $response = curl_exec($ch);
 

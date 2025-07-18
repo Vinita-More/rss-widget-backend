@@ -3,7 +3,9 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -16,17 +18,22 @@ $email = $user->email;
 
 $data = json_decode(file_get_contents("php://input"), true);
 
+//file_put_contents("debug_input.json", json_encode($data, JSON_PRETTY_PRINT)); 
 if (!$data) {
     echo json_encode(["error" => "No data received"]);
     exit;
 }
-$folder_id = $data['folder_id'];
-// // Validate email first
-// $email = isset($data['email']) ? $data['email'] : null;
-// if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-//     echo json_encode(["error" => "Invalid or missing user email"]);
-//     exit;
-// }
+
+// If frontend sends a 'settings' field (JSON string), use it for set_data
+if (isset($data['settings'])) {
+    $set_data = $data['settings'];
+} else {
+    $set_data = json_encode($data);
+}
+
+//$folder_id = $data['folder_id'];
+
+$folder_id = isset($data['folder_id']) ? $data['folder_id'] : 0;
 
 // Validate widget name
 if (!isset($data['widgetName']) || trim($data['widgetName']) === "") {
@@ -45,30 +52,41 @@ $checkStmt->bind_result($count);
 $checkStmt->fetch();
 $checkStmt->close();
 
-if ($count > 0) {
+if ($count > 0) {   
     echo json_encode(["error" => "Widget name already exists. Please choose another name."]);
     exit;
 }
 
-// Insert widget
-$stmt = $conn->prepare("INSERT INTO settings (widget_name, folder_id ,width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment, email, feed_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO settings (widget_name, folder_id, feed_url, set_data, email) VALUES (?, ?, ?, ?, ?)");
 $stmt->bind_param(
-    "sisssssssssss",
+    "sisss",
     $data['widgetName'],
-    $folder_id,
-    $data['widthMode'],
-    $data['width'],
-    $data['heightMode'],
-    $data['height'],
-    $data['autoscroll'],
-    $data['fontStyle'],
-    $data['border'],    
-    $data['borderColor'],
-    $data['textAlign'],
-    $email, 
-    $data['feed_url']
+    $data['folder_id'],
+    $data['feed_url'],
+    $set_data,
+    $email
 );
 
+// Insert widget
+// $stmt = $conn->prepare("INSERT INTO settings (widget_name, folder_id ,width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment, email, feed_url,set_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
+// $stmt->bind_param(
+//     "sissssssssssss",
+//     $data['widgetName'],
+//     $folder_id,
+//     $data['widthMode'],
+//     $data['width'],
+//     $data['heightMode'],
+//     $data['height'],
+//     $data['autoscroll'],
+//     $data['fontStyle'],
+//     $data['border'],    
+//     $data['borderColor'],
+//     $data['textAlign'],
+//     $email, 
+//     $data['feed_url'],
+//     $set_data,
+// );
+//$stmt = $conn->prepare("INSERT INTO settings ")
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Settings saved"]);
 } else {
@@ -77,4 +95,13 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
+
+
+//  Validate email first
+// $email = isset($data['email']) ? $data['email'] : null;
+// if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+//     echo json_encode(["error" => "Invalid or missing user email"]);
+//     exit;
+// }
 ?>
+

@@ -67,26 +67,6 @@ $stmt->bind_param(
     $email
 );
 
-// Insert widget
-// $stmt = $conn->prepare("INSERT INTO settings (widget_name, folder_id ,width_mode, width, height_mode, height, autoscroll, font_style, border, border_color, text_alignment, email, feed_url,set_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
-// $stmt->bind_param(
-//     "sissssssssssss",
-//     $data['widgetName'],
-//     $folder_id,
-//     $data['widthMode'],
-//     $data['width'],
-//     $data['heightMode'],
-//     $data['height'],
-//     $data['autoscroll'],
-//     $data['fontStyle'],
-//     $data['border'],    
-//     $data['borderColor'],
-//     $data['textAlign'],
-//     $email, 
-//     $data['feed_url'],
-//     $set_data,
-// );
-//$stmt = $conn->prepare("INSERT INTO settings ")
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Settings saved"]);
 } else {
@@ -96,12 +76,6 @@ if ($stmt->execute()) {
 $stmt->close();
 $conn->close();
 
-
-//  Validate email first
-// $email = isset($data['email']) ? $data['email'] : null;
-// if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-//     echo json_encode(["error" => "Invalid or missing user email"]);
-//     exit;
-// }
 ?>
+
 
